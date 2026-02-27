@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мероприятия</title>
+    <link rel="stylesheet" href="styles3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="events-header">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">Все</button>
+                    <button class="filter-tab" data-filter="created">Созданные</button>
+                    <button class="filter-tab" data-filter="active">Активные</button>
+                    <button class="filter-tab" data-filter="completed">Прошедшие</button>
+                    <button class="filter-tab" data-filter="archived">Архив</button>
+                </div>
+
+                <div class="nav-buttons" style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="goToProfile()">
+                        <i class="fas fa-user"></i> Профиль
+                    </button>
+                    <button class="btn btn-secondary" onclick="goToWishlists()">
+                        <i class="fas fa-gift"></i> Вишлисты
+                    </button>
+                    <button class="btn btn-success" id="createEventBtn">
+                        <i class="fas fa-plus"></i> Создать
+                    </button>
+                </div>
+            </div>
+
+            <div id="message" class="message"></div>
+            <div class="loader" id="loader"></div>
+
+            <div id="eventsContainer" class="events-grid">
+            </div>
+        </div>
+    </div>
+
+    <script src="event.js"></script>
+</body>
+
+</html>

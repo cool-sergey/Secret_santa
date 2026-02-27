@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мероприятие</title>
+    <link rel="stylesheet" href="styles3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Дополнительные стили для исправления отображения */
+        .event-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .event-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--dark);
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .event-status {
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .status-created {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .status-active {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-completed {
+            background: var(--info);
+            color: white;
+        }
+
+        .status-archived {
+            background: var(--gray);
+            color: white;
+        }
+
+        .event-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark);
+            word-break: break-word;
+        }
+
+        .event-description-full {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            line-height: 1.6;
+            color: var(--dark);
+            white-space: pre-wrap;
+            border: 1px solid #e1e1e1;
+        }
+
+        .action-section {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid #e1e1e1;
+        }
+
+        .action-section h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-section h3 i {
+            color: var(--primary);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0;
+            justify-content: flex-start;
+        }
+
+        .btn-group .btn {
+            flex: 0 1 auto;
+            min-width: 160px;
+            margin: 0;
+            white-space: nowrap;
+            padding: 12px 20px;
+        }
+
+        .participants-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .participants-table th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .participants-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e1e1e1;
+            color: var(--dark);
+        }
+
+        .participants-table tr:hover {
+            background: var(--light);
+        }
+
+        .back-button {
+            margin-bottom: 20px;
+        }
+
+        .back-button .btn {
+            width: auto;
+            padding: 10px 20px;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .close-btn:hover {
+            color: var(--danger);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .event-detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .event-status {
+                align-self: flex-start;
+            }
+
+            .event-info-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-group .btn {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .participants-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="back-button">
+                <button class="btn btn-secondary" onclick="window.location.href='events.html'">
+                    <i class="fas fa-arrow-left"></i> Назад к мероприятиям
+                </button>
+            </div>
+
+            <div id="message" class="message"></div>
+            <div class="loader" id="loader"></div>
+
+            <div id="eventContent" style="display: none;">
+                <div class="event-detail-header">
+                    <div class="event-title" id="eventName"></div>
+                    <div class="event-status" id="eventStatusBadge"></div>
+                </div>
+
+                <div class="event-info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Даты</span>
+                        <span class="info-value" id="eventDates"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Регистрация до</span>
+                        <span class="info-value" id="eventDeadline"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Сумма подарка</span>
+                        <span class="info-value" id="eventAmount"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Участники</span>
+                        <span class="info-value" id="eventParticipantsCount"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Организатор</span>
+                        <span class="info-value" id="eventOrganizer"></span>
+                    </div>
+                </div>
+
+                <div class="event-description-full" id="eventDescription"></div>
+
+                <!-- Секция для организатора -->
+                <div id="organizerSection" style="display: none;" class="action-section">
+                    <h3><i class="fas fa-crown"></i> Действия организатора</h3>
+                    <div class="btn-group" id="organizerActions">
+                        <!-- Кнопки будут добавлены динамически через JS -->
+                    </div>
+                </div>
+
+                <!-- Секция для участника -->
+                <div id="participantSection" style="display: none;" class="action-section">
+                    <h3><i class="fas fa-user"></i> Ваше участие</h3>
+                    <div id="participantInfo" class="info-item" style="margin-bottom:15px;"></div>
+                    <div class="btn-group" id="participantActions"></div>
+                </div>
+
+                <!-- Секция жеребьевки -->
+                <div id="drawSection" style="display: none;" class="action-section">
+                    <h3><i class="fas fa-random"></i> Результаты жеребьевки</h3>
+                    <div id="drawInfo"></div>
+                </div>
+
+                <!-- После секции жеребьевки добавь: -->
+                <div id="recipientWishlistSection" style="display: none;" class="action-section">
+                    <h3><i class="fas fa-gift"></i> Вишлист получателя</h3>
+                    <div id="recipientWishlistContent">
+                        <!-- Здесь будет загружаться вишлист -->
+                    </div>
+                </div>
+
+                <!-- Список участников -->
+                <div class="action-section">
+                    <h3><i class="fas fa-users"></i> Участники</h3>
+                    <table class="participants-table" id="participantsTable">
+                        <thead>
+                            <tr>
+                                <th>Пользователь</th>
+                                <th>Wishlist</th>
+                                <th>Подарок отправлен</th>
+                                <th>Подтверждение</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participantsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для добавления пользователя -->
+    <div class="modal" id="addParticipantModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Добавить пользователя</h3>
+                <button class="close-btn" onclick="closeModal('addParticipantModal')">&times;</button>
+            </div>
+
+            <div id="addParticipantMessage" class="message"></div>
+
+            <form id="addParticipantForm">
+                <div class="form-group">
+                    <label for="userId">ID пользователя *</label>
+                    <input type="number" id="userId" required min="1">
+                    <small style="color: var(--gray); display: block; margin-top: 5px;">
+                        Введите ID пользователя из системы
+                    </small>
+                </div>
+
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('addParticipantModal')">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Модальное окно для выбора вишлиста -->
+    <div class="modal" id="selectWishlistModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Выберите вишлист</h3>
+                <button class="close-btn" onclick="closeModal('selectWishlistModal')">&times;</button>
+            </div>
+
+            <div id="selectWishlistMessage" class="message"></div>
+
+            <form id="selectWishlistForm">
+                <div class="form-group">
+                    <label for="wishlistSelect">Ваш вишлист для этого мероприятия</label>
+                    <select id="wishlistSelect" required>
+                        <option value="">-- Загрузка вишлистов... --</option>
+                    </select>
+                    <small style="color: var(--gray); display: block; margin-top: 5px;">
+                        Вы сможете изменить его до жеребьевки
+                    </small>
+                </div>
+
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary">Подтвердить</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('selectWishlistModal')">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="event.js"></script>
+</body>
+
+</html>

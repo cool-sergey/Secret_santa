@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вишлист</title>
+    <link rel="stylesheet" href="styles2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container" style="max-width: 1000px;">
+        <div class="card">
+            <div class="back-button">
+                <button class="btn btn-secondary" onclick="window.location.href='wishlist.html'">
+                    <i class="fas fa-arrow-left"></i> Назад к вишлистам
+                </button>
+            </div>
+
+            <div id="message" class="message"></div>
+            <div class="loader" id="loader"></div>
+
+            <div id="wishlistContent" style="display: none;">
+                <div class="wishlist-header">
+                    <div class="wishlist-title" id="wishlistName"></div>
+                    <div class="wishlist-meta">
+                        <span id="wishlistCreated"></span>
+                        <span id="wishlistItemsCount"></span>
+                    </div>
+                    <div class="wishlist-description" id="wishlistDescription"></div>
+                </div>
+
+                <div class="header-actions">
+                    <h3>Желания</h3>
+                    <button class="btn btn-success" onclick="showAddItemForm()">
+                        <i class="fas fa-plus"></i> Добавить желание
+                    </button>
+                </div>
+
+                <div id="itemsContainer" class="items-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="itemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="itemModalTitle">Добавить желание</h3>
+                <button class="close-btn" onclick="closeItemModal()">&times;</button>
+            </div>
+
+            <div id="itemMessage" class="message"></div>
+
+            <form id="itemForm">
+                <input type="hidden" id="itemId">
+
+                <div class="form-group">
+                    <label for="itemName">Название *</label>
+                    <input type="text" id="itemName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemLink">Ссылка</label>
+                    <input type="url" id="itemLink" placeholder="https://...">
+                </div>
+
+                <div class="form-group">
+                    <label for="itemDescription">Описание</label>
+                    <textarea id="itemDescription" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemPrice">Ориентировочная цена</label>
+                    <input type="number" id="itemPrice" step="0.01" min="0">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="button" class="btn btn-secondary" onclick="closeItemModal()">Отмена</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="wishlist.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание вишлиста</title>
+    <link rel="stylesheet" href="styles2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="back-button">
+                <button class="btn btn-secondary" onclick="window.location.href='wishlist.html'">
+                    <i class="fas fa-arrow-left"></i> Назад к вишлистам
+                </button>
+            </div>
+
+            <h2 id="formTitle">Создание вишлиста</h2>
+
+            <div id="message" class="message"></div>
+            <div class="loader" id="loader"></div>
+
+            <form id="wishlistForm">
+                <input type="hidden" id="wishlistId">
+
+                <div class="form-group">
+                    <label for="name">Название *</label>
+                    <input type="text" id="name" required maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <textarea id="description" rows="4" maxlength="500"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isPrimary">
+                        Сделать основным вишлистом
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">Создать</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="wishlist.js"></script>
+</body>
+
+</html>

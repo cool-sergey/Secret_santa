@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои вишлисты</title>
+    <link rel="stylesheet" href="styles2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+
+<body>
+    <div class="container" style="max-width: 1000px;">
+        <div class="card">
+            <div class="header-actions"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="goToProfile()">
+                    <i class="fas fa-arrow-left"></i> Назад в профиль
+                </button>
+                <h2 style="margin: 0;">
+                    <i class="fas fa-gift"></i>
+                    Мои вишлисты
+                </h2>
+                <button class="btn btn-success" onclick="window.location.href='wishlist-form.html'">
+                    <i class="fas fa-plus"></i> Создать
+                </button>
+                <button class="btn btn-info" onclick="goToEvents()">
+                    <i class="fas fa-calendar-alt"></i> Мероприятия
+                </button>
+            </div>
+
+            <div id="message" class="message"></div>
+            <div class="loader" id="loader"></div>
+
+            <div id="wishlistsContainer">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost';
+        const token = localStorage.getItem('access_token');
+
+        if (!token) {
+            window.location.href = 'http://localhost/user/login.html';
+        }
+
+        async function loadWishlists() {
+            showLoader(true);
+
+            try {
+                const response = await fetch(`${API_URL}/api/wishlist/wishlists`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('access_token');
+                    window.location.href = 'http://localhost/user/login.html';
+                    return;
+                }
+
+                const wishlists = await response.json();
+                displayWishlists(wishlists);
+
+            } catch (error) {
+                showMessage('Ошибка загрузки вишлистов', 'error');
+                console.error(error);
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        function displayWishlists(wishlists) {
+            const container = document.getElementById('wishlistsContainer');
+
+            if (!wishlists || wishlists.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-gift"></i>
+                        <h3>У вас пока нет вишлистов</h3>
+                        <p>Создайте первый вишлист и начните собирать желания!</p>
+                        <button class="btn btn-primary" onclick="window.location.href='wishlist-form.html'">
+                            <i class="fas fa-plus"></i> Создать вишлист
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="wishlist-grid">';
+
+            wishlists.forEach(wishlist => {
+                const itemsCount = wishlist.items ? wishlist.items.length : 0;
+                const primaryClass = wishlist.is_primary ? 'primary' : '';
+
+                html += `
+                    <div class="wishlist-card ${primaryClass}" onclick="viewWishlist(${wishlist.id})">
+                        ${wishlist.is_primary ? '<span class="primary-badge">Основной</span>' : ''}
+                        <div class="wishlist-name">${escapeHtml(wishlist.name)}</div>
+                        <div class="wishlist-description">${escapeHtml(wishlist.description || 'Нет описания')}</div>
+                        <div class="wishlist-stats">
+                            <span><i class="fas fa-gift"></i> ${itemsCount} желаний</span>
+                            <span><i class="fas fa-calendar"></i> ${new Date(wishlist.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <div class="wishlist-actions" onclick="event.stopPropagation()">
+                            <button class="btn-icon-sm" onclick="editWishlist(${wishlist.id})" title="Редактировать">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            ${!wishlist.is_primary ? `
+                                <button class="btn-icon-sm" onclick="setPrimary(${wishlist.id})" title="Сделать основным">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            ` : ''}
+                            <button class="btn-icon-sm" onclick="deleteWishlist(${wishlist.id})" title="Удалить">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function viewWishlist(id) {
+            window.location.href = `wishlist-detail.html?id=${id}`;
+        }
+
+        function editWishlist(id) {
+            window.location.href = `wishlist-form.html?id=${id}`;
+        }
+
+        async function setPrimary(id) {
+            if (!confirm('Сделать этот вишлист основным?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/wishlist/wishlists/${id}/set-primary`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showMessage('Основной вишлист изменен', 'success');
+                    loadWishlists();
+                } else {
+                    const data = await response.json();
+                    showMessage(data.detail || 'Ошибка', 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка соединения', 'error');
+            }
+        }
+
+        async function deleteWishlist(id) {
+            if (!confirm('Удалить вишлист? Все желания также будут удалены.')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/wishlist/wishlists/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showMessage('Вишлист удален', 'success');
+                    loadWishlists();
+                } else {
+                    const data = await response.json();
+                    showMessage(data.detail || 'Ошибка', 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка соединения', 'error');
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return text;
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showLoader(show) {
+            document.getElementById('loader').style.display = show ? 'block' : 'none';
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type} show`;
+
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 3000);
+        }
+
+        function goToProfile() {
+            window.location.href = 'http://localhost/user/profile.html';
+        }
+        function goToEvents() {
+            window.location.href = 'http://localhost/event/events.html';
+        }
+
+        loadWishlists();
+    </script>
+</body>
+
+</html>

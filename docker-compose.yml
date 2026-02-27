@@ -1,0 +1,50 @@
+services:
+  user-service:
+    build: ./services/user-service
+    container_name: user-service
+    volumes:
+      - ./services/user-service:/app
+      - ./services/user-service/uploads:/app/uploads
+    environment:
+      - PORT=8000
+
+    restart: unless-stopped
+
+  wishlists-service:
+    build: ./services/wishlists-service
+    container_name: wishlists-service
+    volumes:
+      - ./services/wishlists-service:/app
+    environment:
+      - PORT=8000
+    restart: unless-stopped
+
+  event-service:
+    build: ./services/event-service
+    container_name: event-service
+    volumes:
+      - ./services/event-service:/app
+    environment:
+      - PORT=8000
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+      - ./services/user-service/frontend:/usr/share/nginx/html/user
+      - ./services/wishlists-service/frontend:/usr/share/nginx/html/wishlist
+      - ./services/event-service/frontend:/usr/share/nginx/html/event
+      - ./services/user-service/uploads:/app/uploads
+    depends_on:
+      - user-service
+      - wishlists-service
+      - event-service
+    restart: unless-stopped
+
+volumes:
+  user_uploads:
